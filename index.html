@@ -1,70 +1,1147 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AptGyms | Nationwide Directory</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, onSnapshot, addDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AptGyms – Apartment Gym Reviews in Arlington, VA</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1b3e;
+    --navy-mid: #152347;
+    --blue: #4a90d9;
+    --blue-light: #7ab8f5;
+    --blue-bright: #5ba3f5;
+    --white: #f5f8ff;
+    --gray: #8a9bbf;
+    --card-bg: #111e3a;
+    --border: rgba(90,163,245,0.15);
+    --gold: #f5c842;
+  }
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAFkTTvHfnSFqUC-ClOj-rKBqVz_cr2WSU",
-            authDomain: "aptgyms.firebaseapp.com",
-            projectId: "aptgyms",
-            storageBucket: "aptgyms.firebasestorage.app",
-            messagingSenderId: "895660741409",
-            appId: "1:895660741409:web:3f53bc334016bab0d0a460",
-            measurementId: "G-BP6824CQSQ"
-        };
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
 
-        let gyms = [];
-        let view = 'directory';
+  /* NOISE TEXTURE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
 
-        window.onload = () => {
-            signInAnonymously(auth).then(() => {
-                onSnapshot(collection(db, 'gyms'), (snap) => {
-                    gyms = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                    render();
-                });
-            });
-        };
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(13,27,62,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
 
-        window.toggleView = () => { view = view === 'directory' ? 'admin' : 'directory'; render(); };
-        window.addGym = () => {
-            const name = prompt("Building Name:");
-            if(name) addDoc(collection(db, 'gyms'), { name, city: 'Arlington', totalScore: 85, createdAt: serverTimestamp() });
-        };
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
 
-        function render() {
-            document.getElementById('app').innerHTML = `
-                <div class="max-w-md mx-auto p-6">
-                    <div class="flex justify-between items-center mb-8">
-                        <h1 class="text-3xl font-black italic italic uppercase tracking-tighter">AptGyms.</h1>
-                        <button onclick="toggleView()" class="bg-black text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">
-                            ${view === 'directory' ? 'Manage' : 'Back'}
-                        </button>
-                    </div>
-                    ${view === 'directory' ? 
-                        gyms.map(g => `<div class="bg-white p-6 rounded-[2rem] shadow-sm mb-4 border border-slate-100">
-                            <h3 class="text-xl font-black italic">${g.name}</h3>
-                            <p class="text-orange-500 font-black text-xs uppercase tracking-widest">${g.totalScore} Score</p>
-                        </div>`).join('') :
-                        `<button onclick="addGym()" class="w-full py-8 border-2 border-dashed border-slate-200 rounded-[2rem] text-slate-400 font-black uppercase tracking-widest">Add Audit</button>`
-                    }
-                </div>
-            `;
-        }
-    </script>
+  .nav-logo-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--navy-mid), var(--blue));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .nav-logo-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--white);
+  }
+
+  .nav-logo-text span { color: var(--blue-bright); }
+
+  nav ul {
+    display: flex;
+    gap: 28px;
+    list-style: none;
+  }
+
+  nav ul a {
+    color: var(--gray);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+  }
+
+  nav ul a:hover { color: var(--blue-light); }
+
+  .nav-cta {
+    background: var(--blue);
+    color: var(--white) !important;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-weight: 600 !important;
+    transition: background 0.2s !important;
+  }
+
+  .nav-cta:hover { background: var(--blue-light) !important; color: var(--navy) !important; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 24px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg-circle {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+  }
+
+  .hero-bg-circle.c1 {
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(74,144,217,0.18) 0%, transparent 70%);
+    top: -100px; left: -150px;
+    animation: drift1 8s ease-in-out infinite alternate;
+  }
+
+  .hero-bg-circle.c2 {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(91,163,245,0.12) 0%, transparent 70%);
+    bottom: 0; right: -100px;
+    animation: drift2 10s ease-in-out infinite alternate;
+  }
+
+  @keyframes drift1 { from { transform: translate(0,0); } to { transform: translate(40px, 30px); } }
+  @keyframes drift2 { from { transform: translate(0,0); } to { transform: translate(-30px, -20px); } }
+
+  .hero-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--blue-bright);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s forwards;
+  }
+
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(64px, 12vw, 130px);
+    line-height: 0.9;
+    letter-spacing: 4px;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.35s forwards;
+  }
+
+  .hero h1 .line2 {
+    display: block;
+    color: var(--blue-bright);
+    -webkit-text-stroke: 1px var(--blue);
+  }
+
+  .hero-sub {
+    font-size: 17px;
+    color: var(--gray);
+    max-width: 500px;
+    line-height: 1.65;
+    margin-bottom: 40px;
+    font-weight: 300;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.5s forwards;
+  }
+
+  .hero-search {
+    display: flex;
+    gap: 0;
+    width: 100%;
+    max-width: 520px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.04);
+    opacity: 0;
+    animation: fadeUp 0.7s 0.65s forwards;
+  }
+
+  .hero-search select {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--white);
+    padding: 16px 20px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .hero-search select option { background: var(--navy-mid); color: var(--white); }
+
+  .hero-search button {
+    background: var(--blue);
+    color: var(--white);
+    border: none;
+    padding: 16px 28px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .hero-search button:hover { background: var(--blue-light); color: var(--navy); }
+
+  .hero-stats {
+    display: flex;
+    gap: 40px;
+    margin-top: 56px;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.8s forwards;
+  }
+
+  .hero-stat { text-align: center; }
+
+  .hero-stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--blue-bright);
+    letter-spacing: 2px;
+  }
+
+  .hero-stat-label {
+    font-size: 11px;
+    color: var(--gray);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SECTION */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 80px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--blue-bright);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 5vw, 56px);
+    letter-spacing: 2px;
+    margin-bottom: 48px;
+  }
+
+  /* SCORING BREAKDOWN */
+  .score-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 48px;
+    margin-bottom: 80px;
+  }
+
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 24px;
+    margin-top: 32px;
+  }
+
+  .score-cat {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .score-cat:hover {
+    border-color: var(--blue);
+    transform: translateY(-3px);
+  }
+
+  .score-cat-icon { font-size: 28px; margin-bottom: 10px; }
+
+  .score-cat-name {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--gray);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .score-cat-weight {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--blue-bright);
+  }
+
+  /* GYM CARDS */
+  .gyms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+  }
+
+  .gym-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
+  .gym-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--blue);
+    box-shadow: 0 20px 40px rgba(74,144,217,0.15);
+  }
+
+  .gym-card-img {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(135deg, #1a2d52, #0d1b3e);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .gym-card-img-placeholder {
+    font-size: 48px;
+    opacity: 0.3;
+  }
+
+  .gym-card-score {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: var(--navy);
+    border: 2px solid var(--blue);
+    border-radius: 10px;
+    padding: 8px 12px;
+    text-align: center;
+  }
+
+  .gym-card-score-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    line-height: 1;
+    color: var(--blue-bright);
+  }
+
+  .gym-card-score-max {
+    font-size: 9px;
+    color: var(--gray);
+    letter-spacing: 1px;
+  }
+
+  .gym-card-badge {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: var(--blue);
+    color: var(--white);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  .gym-card-body { padding: 20px; }
+
+  .gym-card-neighborhood {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .gym-card-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+
+  .gym-card-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .gym-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .gym-bar-label {
+    font-size: 11px;
+    color: var(--gray);
+    width: 90px;
+    flex-shrink: 0;
+  }
+
+  .gym-bar-track {
+    flex: 1;
+    height: 5px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .gym-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--blue), var(--blue-light));
+    transition: width 1s ease;
+  }
+
+  .gym-bar-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--blue-light);
+    width: 24px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .gym-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .gym-card-date {
+    font-size: 11px;
+    color: var(--gray);
+  }
+
+  .gym-card-link {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--blue-bright);
+    letter-spacing: 0.5px;
+  }
+
+  /* FILTER BAR */
+  .filter-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+
+  .filter-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--gray);
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--blue);
+    border-color: var(--blue);
+    color: var(--white);
+  }
+
+  /* HOW IT WORKS */
+  .how-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+  }
+
+  .how-step {
+    padding: 32px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    position: relative;
+  }
+
+  .how-step-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    line-height: 1;
+    color: rgba(74,144,217,0.12);
+    position: absolute;
+    top: 16px; right: 20px;
+  }
+
+  .how-step-icon { font-size: 32px; margin-bottom: 16px; }
+
+  .how-step h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    color: var(--white);
+  }
+
+  .how-step p {
+    font-size: 14px;
+    color: var(--gray);
+    line-height: 1.65;
+  }
+
+  /* INSTAGRAM CTA */
+  .ig-cta {
+    background: linear-gradient(135deg, var(--navy-mid) 0%, #1a2d52 100%);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 60px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 80px;
+  }
+
+  .ig-cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(74,144,217,0.15) 0%, transparent 60%);
+  }
+
+  .ig-cta h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(32px, 5vw, 52px);
+    letter-spacing: 3px;
+    margin-bottom: 14px;
+    position: relative;
+  }
+
+  .ig-cta p {
+    color: var(--gray);
+    font-size: 15px;
+    margin-bottom: 28px;
+    position: relative;
+  }
+
+  .ig-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+    color: white;
+    text-decoration: none;
+    padding: 14px 32px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+  }
+
+  .ig-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(253,29,29,0.3);
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 32px;
+    text-align: center;
+    color: var(--gray);
+    font-size: 13px;
+    position: relative;
+    z-index: 1;
+  }
+
+  footer .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+
+  footer .footer-logo span { color: var(--blue-bright); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    backdrop-filter: blur(6px);
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    max-width: 700px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 40px;
+    position: relative;
+    animation: modalIn 0.3s ease;
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 20px; right: 20px;
+    background: none;
+    border: none;
+    color: var(--gray);
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px;
+    border-radius: 6px;
+    transition: color 0.2s;
+  }
+
+  .modal-close:hover { color: var(--white); }
+
+  .modal-neighborhood {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .modal-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 40px;
+    letter-spacing: 2px;
+    margin-bottom: 24px;
+  }
+
+  .modal-score-display {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 28px;
+    padding: 24px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .modal-score-big {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 72px;
+    line-height: 1;
+    color: var(--blue-bright);
+  }
+
+  .modal-score-label { color: var(--gray); font-size: 13px; }
+
+  .modal-score-label strong {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    color: var(--white);
+    letter-spacing: 1px;
+  }
+
+  .modal-breakdown {
+    margin-bottom: 24px;
+  }
+
+  .modal-breakdown h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+    color: var(--gray);
+  }
+
+  .modal-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .modal-bar-label { font-size: 13px; color: var(--gray); width: 140px; flex-shrink: 0; }
+
+  .modal-bar-track {
+    flex: 1;
+    height: 8px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .modal-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--blue), var(--blue-light));
+  }
+
+  .modal-bar-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--blue-light);
+    width: 40px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .modal-photos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .modal-photo {
+    height: 130px;
+    background: linear-gradient(135deg, #1a2d52, #0d1b3e);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    opacity: 0.5;
+    border: 1px solid var(--border);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    nav ul { display: none; }
+    .hero-stats { gap: 20px; }
+    .score-section { padding: 28px; }
+    .ig-cta { padding: 40px 24px; }
+    .modal { padding: 24px; }
+    .modal-score-big { font-size: 52px; }
+    .modal-bar-label { width: 100px; }
+  }
+</style>
 </head>
-<body class="bg-slate-50">
-    <div id="app"></div>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">🏋️</div>
+    <span class="nav-logo-text"><span>APT</span>GYMS</span>
+  </a>
+  <ul>
+    <li><a href="#gyms">Browse Gyms</a></li>
+    <li><a href="#scoring">How We Score</a></li>
+    <li><a href="#how">About</a></li>
+    <li><a href="https://instagram.com/aptgyms" target="_blank" class="nav-cta">Follow on IG</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg-circle c1"></div>
+  <div class="hero-bg-circle c2"></div>
+  <p class="hero-eyebrow">Arlington, VA — Honest Gym Reviews</p>
+  <h1>KNOW YOUR<span class="line2">GYM BEFORE</span>YOU SIGN</h1>
+  <p class="hero-sub">We visit, photograph, and score every apartment gym in Arlington so you don't get locked into a lease with a sad treadmill and a broken cable machine.</p>
+
+  <div class="hero-search">
+    <select id="neighborhoodFilter">
+      <option value="">All Neighborhoods</option>
+      <option>National Landing</option>
+      <option>Pentagon City</option>
+      <option>Crystal City</option>
+      <option>Rosslyn</option>
+      <option>Courthouse</option>
+      <option>Clarendon</option>
+      <option>Virginia Square</option>
+      <option>Ballston</option>
+    </select>
+    <button onclick="filterGyms()">Search Gyms</button>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-num">12</div>
+      <div class="hero-stat-label">Gyms Reviewed</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">6</div>
+      <div class="hero-stat-label">Neighborhoods</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">8</div>
+      <div class="hero-stat-label">Categories Scored</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW WE SCORE -->
+<section id="scoring" style="max-width:1100px;">
+  <div class="score-section">
+    <p class="section-label">Transparency First</p>
+    <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,4vw,48px);letter-spacing:2px;margin-bottom:8px;">How We Score Every Gym</h2>
+    <p style="color:var(--gray);font-size:15px;max-width:560px;">Every gym gets scored 0–100 across 8 categories. No opinions — just facts you can verify from our photos.</p>
+
+    <div class="score-grid">
+      <div class="score-cat">
+        <div class="score-cat-icon">🏋️</div>
+        <div class="score-cat-name">Equipment</div>
+        <div class="score-cat-weight">25 pts</div>
+      </div>
+      <div class="score-cat">
+        <div class="score-cat-icon">🧼</div>
+        <div class="score-cat-name">Cleanliness</div>
+        <div class="score-cat-weight">20 pts</div>
+      </div>
+      <div class="score-cat">
+        <div class="score-cat-icon">📐</div>
+        <div class="score-cat-name">Space & Layout</div>
+        <div class="score-cat-weight">15 pts</div>
+      </div>
+      <div class="score-cat">
+        <div class="score-cat-icon">💡</div>
+        <div class="score-cat-name">Lighting</div>
+        <div class="score-cat-weight">10 pts</div>
+      </div>
+      <div class="score-cat">
+        <div class="score-cat-icon">🕐</div>
+        <div class="score-cat-name">Hours / Access</div>
+        <div class="score-cat-weight">10 pts</div>
+      </div>
+      <div class="score-cat">
+        <div class="score-cat-icon">❄️</div>
+        <div class="score-cat-name">Climate Control</div>
+        <div class="score-cat-weight">10 pts</div>
+      </div>
+      <div class="score-cat">
+        <div class="score-cat-icon">🔊</div>
+        <div class="score-cat-name">Audio / TV</div>
+        <div class="score-cat-weight">5 pts</div>
+      </div>
+      <div class="score-cat">
+        <div class="score-cat-icon">🚿</div>
+        <div class="score-cat-name">Amenities</div>
+        <div class="score-cat-weight">5 pts</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GYM LISTINGS -->
+<section id="gyms" style="max-width:1100px;">
+  <p class="section-label">Arlington, VA</p>
+  <h2 class="section-title">Browse Apartment Gyms</h2>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="setFilter(this,'')">All</button>
+    <button class="filter-btn" onclick="setFilter(this,'National Landing')">National Landing</button>
+    <button class="filter-btn" onclick="setFilter(this,'Rosslyn')">Rosslyn</button>
+    <button class="filter-btn" onclick="setFilter(this,'Courthouse')">Courthouse</button>
+    <button class="filter-btn" onclick="setFilter(this,'Clarendon')">Clarendon</button>
+    <button class="filter-btn" onclick="setFilter(this,'Ballston')">Ballston</button>
+  </div>
+
+  <div class="gyms-grid" id="gymsGrid"></div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" style="max-width:1100px;">
+  <p class="section-label">The Process</p>
+  <h2 class="section-title">How AptGyms Works</h2>
+  <div class="how-grid">
+    <div class="how-step">
+      <div class="how-step-num">01</div>
+      <div class="how-step-icon">📸</div>
+      <h3>We Visit</h3>
+      <p>We show up in person and photograph every corner of every gym — equipment, bathrooms, signage, everything.</p>
+    </div>
+    <div class="how-step">
+      <div class="how-step-num">02</div>
+      <div class="how-step-icon">📋</div>
+      <h3>We Score</h3>
+      <p>Using our 8-category rubric, we assign points based on what we see. No guesswork, no paid placements.</p>
+    </div>
+    <div class="how-step">
+      <div class="how-step-num">03</div>
+      <div class="how-step-icon">🔍</div>
+      <h3>We Show Our Work</h3>
+      <p>Every score is tied to a photo. You can see exactly why each gym earned its rating — and judge for yourself.</p>
+    </div>
+    <div class="how-step">
+      <div class="how-step-num">04</div>
+      <div class="how-step-icon">🔄</div>
+      <h3>We Re-Visit</h3>
+      <p>Gyms change. We revisit and update scores so the data stays honest and current.</p>
+    </div>
+  </div>
+</section>
+
+<!-- INSTAGRAM CTA -->
+<section style="max-width:1100px;">
+  <div class="ig-cta">
+    <h2>FOLLOW THE JOURNEY ON INSTAGRAM</h2>
+    <p>Behind-the-scenes visits, gym reveals, and honest takes on apartment fitness in the DMV.</p>
+    <a href="https://instagram.com/aptgyms" target="_blank" class="ig-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+      @aptgyms
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo"><span>APT</span>GYMS</div>
+  <p>Honest apartment gym reviews for Arlington, VA — expanding to Alexandria and DC.</p>
+  <p style="margin-top:8px;">© 2025 AptGyms.com · Not affiliated with any apartment community</p>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="modalContent">
+    <button class="modal-close" onclick="closeModalBtn()">✕</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+const gyms = [
+  {
+    name: "The Altitude at National Landing",
+    neighborhood: "National Landing",
+    score: 87,
+    badge: "Top Rated",
+    categories: { Equipment: 22, Cleanliness: 19, "Space & Layout": 13, Lighting: 9, "Hours / Access": 9, "Climate Control": 9, "Audio / TV": 4, Amenities: 2 },
+    summary: "One of the best-equipped apartment gyms we've seen in Arlington. Pelotons, cable machines, full free weight section, and it's actually clean.",
+    date: "Feb 2025"
+  },
+  {
+    name: "Rosslyn Heights Fitness Center",
+    neighborhood: "Rosslyn",
+    score: 74,
+    badge: null,
+    categories: { Equipment: 18, Cleanliness: 16, "Space & Layout": 11, Lighting: 7, "Hours / Access": 10, "Climate Control": 8, "Audio / TV": 3, Amenities: 1 },
+    summary: "Solid mid-tier gym. Good cardio selection, but the weight room is cramped during peak hours. Always well-maintained.",
+    date: "Jan 2025"
+  },
+  {
+    name: "Courthouse Commons",
+    neighborhood: "Courthouse",
+    score: 61,
+    badge: null,
+    categories: { Equipment: 14, Cleanliness: 13, "Space & Layout": 10, Lighting: 6, "Hours / Access": 8, "Climate Control": 6, "Audio / TV": 3, Amenities: 1 },
+    summary: "Gets the job done for cardio, but don't expect to do serious lifting. The dumbbells max out at 50lbs and the cable machine needs repair.",
+    date: "Jan 2025"
+  },
+  {
+    name: "The Clarendon",
+    neighborhood: "Clarendon",
+    score: 79,
+    badge: null,
+    categories: { Equipment: 20, Cleanliness: 17, "Space & Layout": 12, Lighting: 8, "Hours / Access": 9, "Climate Control": 8, "Audio / TV": 3, Amenities: 2 },
+    summary: "Surprisingly well-equipped for its size. The layout is smart — they fit a lot into a small footprint without it feeling cramped.",
+    date: "Feb 2025"
+  },
+  {
+    name: "Ballston Exchange",
+    neighborhood: "Ballston",
+    score: 68,
+    badge: null,
+    categories: { Equipment: 16, Cleanliness: 15, "Space & Layout": 9, Lighting: 7, "Hours / Access": 8, "Climate Control": 7, "Audio / TV": 4, Amenities: 2 },
+    summary: "Great location but the gym doesn't live up to the building's premium feel. Equipment is dated and the AC struggles in summer.",
+    date: "Feb 2025"
+  },
+  {
+    name: "Pentagon City Residences",
+    neighborhood: "National Landing",
+    score: 55,
+    badge: "Needs Work",
+    categories: { Equipment: 12, Cleanliness: 11, "Space & Layout": 8, Lighting: 6, "Hours / Access": 7, "Climate Control": 6, "Audio / TV": 3, Amenities: 2 },
+    summary: "Below average for the area. Two treadmills were out of service during our visit and the free weight selection is very limited.",
+    date: "Jan 2025"
+  }
+];
+
+let activeFilter = '';
+
+function renderGyms(filter) {
+  const grid = document.getElementById('gymsGrid');
+  const filtered = filter ? gyms.filter(g => g.neighborhood === filter) : gyms;
+  grid.innerHTML = filtered.map((gym, i) => {
+    const maxPts = { Equipment: 25, Cleanliness: 20, "Space & Layout": 15, Lighting: 10, "Hours / Access": 10, "Climate Control": 10, "Audio / TV": 5, Amenities: 5 };
+    const topCats = Object.entries(gym.categories).slice(0, 4);
+    return `
+    <div class="gym-card" onclick="openModal(${gyms.indexOf(gym)})">
+      <div class="gym-card-img">
+        <div class="gym-card-img-placeholder">🏋️</div>
+        ${gym.badge ? `<span class="gym-card-badge">${gym.badge}</span>` : ''}
+        <div class="gym-card-score">
+          <div class="gym-card-score-num">${gym.score}</div>
+          <div class="gym-card-score-max">/ 100</div>
+        </div>
+      </div>
+      <div class="gym-card-body">
+        <div class="gym-card-neighborhood">${gym.neighborhood}</div>
+        <div class="gym-card-name">${gym.name}</div>
+        <div class="gym-card-bars">
+          ${topCats.map(([k, v]) => `
+            <div class="gym-bar">
+              <span class="gym-bar-label">${k}</span>
+              <div class="gym-bar-track"><div class="gym-bar-fill" style="width:${Math.round(v/maxPts[k]*100)}%"></div></div>
+              <span class="gym-bar-val">${v}/${maxPts[k]}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div class="gym-card-footer">
+          <span class="gym-card-date">Reviewed ${gym.date}</span>
+          <span class="gym-card-link">See full scorecard →</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setFilter(btn, val) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeFilter = val;
+  renderGyms(val);
+  document.getElementById('neighborhoodFilter').value = val;
+}
+
+function filterGyms() {
+  const val = document.getElementById('neighborhoodFilter').value;
+  activeFilter = val;
+  renderGyms(val);
+  document.getElementById('gyms').scrollIntoView({ behavior: 'smooth' });
+}
+
+function openModal(idx) {
+  const gym = gyms[idx];
+  const maxPts = { Equipment: 25, Cleanliness: 20, "Space & Layout": 15, Lighting: 10, "Hours / Access": 10, "Climate Control": 10, "Audio / TV": 5, Amenities: 5 };
+  const grade = gym.score >= 80 ? 'Excellent' : gym.score >= 65 ? 'Good' : gym.score >= 50 ? 'Average' : 'Below Average';
+
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-neighborhood">${gym.neighborhood}</div>
+    <div class="modal-name">${gym.name}</div>
+    <div class="modal-score-display">
+      <div class="modal-score-big">${gym.score}</div>
+      <div class="modal-score-label">
+        <strong>${grade}</strong>
+        out of 100 possible points<br>
+        <span style="color:var(--gray);font-size:12px;">Reviewed ${gym.date}</span>
+      </div>
+    </div>
+    <p style="color:var(--gray);font-size:14px;line-height:1.7;margin-bottom:24px;">${gym.summary}</p>
+    <div class="modal-breakdown">
+      <h3>Full Score Breakdown</h3>
+      ${Object.entries(gym.categories).map(([k, v]) => `
+        <div class="modal-bar">
+          <span class="modal-bar-label">${k}</span>
+          <div class="modal-bar-track"><div class="modal-bar-fill" style="width:${Math.round(v/maxPts[k]*100)}%"></div></div>
+          <span class="modal-bar-val">${v} / ${maxPts[k]}</span>
+        </div>
+      `).join('')}
+    </div>
+    <div class="modal-photos">
+      <div class="modal-photo">📸</div>
+      <div class="modal-photo">📸</div>
+      <div class="modal-photo">📸</div>
+      <div class="modal-photo">📸</div>
+    </div>
+    <p style="color:var(--gray);font-size:12px;margin-top:12px;text-align:center;">Photos from our site visit — follow <a href="https://instagram.com/aptgyms" style="color:var(--blue-bright);">@aptgyms</a> for more</p>
+  `;
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal')) closeModalBtn();
+}
+
+function closeModalBtn() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+renderGyms('');
+</script>
 </body>
 </html>
