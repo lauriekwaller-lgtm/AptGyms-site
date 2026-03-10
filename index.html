@@ -237,29 +237,29 @@ const gyms=[
     name:"The Bartlett",
     neighborhood:"Pentagon City",
     address:"520 12th St S",
-    score:80,
+    score:82,
     badge:null,
     scores:{
-      "Strength Capacity":[31,35],
+      "Strength Capacity":[33,35],
       "Cardio Capacity":[24,25],
       "Machines":[14,20],
-      "Space & Layout":[10,15],
-      "Specialty & Tech":[1,5]
+      "Space & Layout":[11,15],
+      "Specialty & Tech":[0,5]
     },
     detail:{
       strength:{
-        racks:[7,8],
-        dumbbells:[5,8],
-        dumbDetail:"Up to 75lbs + duplicate 15-40lbs range",
-        barbells:[4,4],
+        racks:[6,6],
+        handheld:[8,10],
+        handDetail:"DB Base: 4pts | KB Pro Array: 3pts | Duplicate bonus: 1pt",
+        barbells:[6,6],
         benches:[5,5],
-        functional:[10,10],
-        functionalList:"KB Basic, KB Array, Med Balls, Battle Ropes, Landmine, Hip Thrust, Plyo Boxes, Trap Bar, Captain's Chair, Roman Chair"
+        functional:[8,8],
+        functionalList:"Med Balls, Battle Ropes, Landmine, Hip Thrust Bench, Plyo Boxes, Trap Bar, Captain's Chair, Roman Chair"
       },
       cardio:{
         quantity:[9,10],
         variety:[15,15],
-        varietyList:"Treadmills, Stair Climbers, Ellipticals, Rowers, Upright Bikes, Spin/Peloton Bikes, Recumbent Bikes, Assault Bike, Self-Powered Treadmill"
+        varietyList:"Treadmills, Stair Climbers, Ellipticals, Rowers, Upright Bikes, Spin/Peloton Bikes, Recumbent Bikes, Fan/Air Bike, Self-Powered Treadmill"
       },
       machines:{
         smith:[4,4],
@@ -272,13 +272,13 @@ const gyms=[
       },
       space:{
         flooring:[2,5],
-        footSpace:[3,5],
+        footSpace:[4,5],
         specialtyRooms:[5,5]
       },
-      specialty:[1,5],
-      specialtyList:"Core Tools"
+      specialty:[0,5],
+      specialtyList:"None"
     },
-    summary:"Great for lifters and cardio enthusiasts. 4 Olympic bars, Rogue bumper plates, 4 squat stands, and one of the most complete cardio floors we've seen in an apartment building.",
+    summary:"Great for lifters and cardio enthusiasts. 4 Olympic bars and racks and a large quantity and variety of cardio options.",
     date:"Mar 2026"
   }
 ];
@@ -342,9 +342,9 @@ function openModal(idx){
       <h3>Full Score Breakdown</h3>
 
       <div class="msec">&#127947; Strength Capacity &#8212; ${gym.scores["Strength Capacity"][0]} / 35</div>
-      ${bar("Racks",str.racks)}
-      ${bar("Dumbbells",str.dumbbells)}
-      <p style="color:var(--gray);font-size:11px;margin:-4px 0 8px 162px">${str.dumbDetail}</p>
+      ${bar("Racks & UPR",str.racks)}
+      ${bar("DBs & KBs",str.handheld)}
+      <p style="color:var(--gray);font-size:11px;margin:-4px 0 8px 162px">${str.handDetail}</p>
       ${bar("Barbells & Plates",str.barbells)}
       ${bar("Benches",str.benches)}
       ${bar("Functional Tools",str.functional)}
